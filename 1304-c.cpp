@@ -1,16 +1,19 @@
 #include <iostream>
 #include <vector>
-#define forn(i, n) for(int i=0;i<n; i++)
+#define forn(i, n) for(int i=0; i<n; i++)
 
 using namespace std;
 
-typedef long long ll;
-
-struct dp {
-    int fi;
-    int se;
-    int th;
+struct d {
+    int t, l, h;
 };
+
+d intersect(d a, d b) {
+    a.l = max(a.l, b.l);
+    a.h = min(a.h, b.h);
+
+    return a;
+}
 
 int main() {
     int q;
@@ -20,61 +23,53 @@ int main() {
         int n, m;
         cin >> n >> m;
 
-        ll L = m;
-        ll H = m;
-        ll T = 0;
-        bool factible = true;
-        ll t_ant = 2e9;
-        ll delta = 0;
-        vector<dp> querys;
-        int j = 0;
+        vector<d> clientes(n);
         forn (i, n) {
-            ll t, l, h;
+            int t, l, h;
             cin >> t >> l >> h;
-
-            if (t == t_ant) {
-                querys[j] = {t, min(l, querys[i].)}
-            } else {
-                querys[++i] = {t, l, h};
-            }
-            t_ant = t;
+            clientes[i] = {t, l, h};
         }
 
-        for (auto v : querys) {
-
-            if (t != t_ant) {
-                delta = t - T;
-            }
-
-            t_ant = t;
-            int pL = L;
-            int pH = H;
-            if (factible) {
-                if (h <= L) {
-                    L = max(l, L-delta);
-                    H = max(h, H-delta);
-                } else if (l >= H) {
-                    L = min(l, L+delta);
-                    H = min(h, H+delta);
+        {
+            int j = 0;
+            forn (i, n) {
+                if (clientes[i].t == clientes[j].t) {
+                    clientes[j] = intersect(clientes[i], clientes[j]);
                 } else {
-                    if (l <= L) {
-                        L = max(l, L-delta);
-                    } else {
-                        L = min(l, L+delta);
-                    }
-                    if (h <= H) {
-                        H = max(h, H-delta);
-                    } else {
-                        H = min(h, H+delta);
-                    }
-                }
-
-                if (h < L || l > H) {
-                    factible = false;
+                    clientes[++j] = clientes[i];
                 }
             }
-            delta -= max(abs(pL - L), abs(pH - H));
-            // cout << H << " " << L << endl;
+            n = j+1;
+            clientes.resize(n);
+        }
+
+        int T = 0;
+        int L = m;
+        int H = m;
+        bool factible = true;
+        forn (i, n) {
+            int h = clientes[i].h;
+            int l = clientes[i].l;
+            int t = clientes[i].t;
+
+            if (l > h) {
+                factible = false;
+                break;
+            }
+
+            int dt = t - T;
+
+            int hposible = H + dt;
+            int lposible = L - dt;
+
+            if (hposible < l || lposible > h) {
+                factible = false;
+                break;
+            }
+
+            H = min(h, hposible);
+            L = max(l, lposible);
+
             T = t;
         }
 

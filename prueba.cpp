@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #define forn(i,n) for(int i=0; i<n; i++)
 
 using namespace std;
@@ -23,6 +24,9 @@ int query(int ind) {
 
 
 int main() {
+    vector<int> a; a.reserve(10);
+    a.push_back(10);
+    cout << a.capacity() << endl; exit(0);
     cin >> n;
 
     forn (i, n) {
